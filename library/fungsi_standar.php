@@ -244,4 +244,29 @@ function pecah_tgl($kalender)
 		//akhir tabel
 		echo "</table>";
 	}
+
+	///////////////////////////// FUNGSI HALAMAN/NAVIGASI ////////////////////////////////////////////////////////////////////////////////////
+function _navpage($koneksi,$sqlnav,$maxrow,$page,$paramsnav){
+	//echo $sqlnav;
+	$rs	= mysql_query($sqlnav);
+	$num= mysql_num_rows($rs);
+	//echo $num; 
+	$sesspos=ceil($page/5);
+	$totpage=ceil($num/$maxrow);
+	//echo $totpage;
+	$startpagesess=(($sesspos-1)*5)+1;
+	$endpagesess=(($sesspos)*5)>ceil($num/$maxrow)?ceil($num/$maxrow):(($sesspos)*5);
+	echo "<a href='#' class='btn btn-default'>".$page."&nbsp;Dari&nbsp;".$totpage."&nbsp;</a>&nbsp;";
+	if($page!=1){echo "<a href='".$paramsnav."&page=1' class='btn btn-default'><<</a>&nbsp;";}else{echo "<a href='#' class='btn btn-default'><<</a>&nbsp;";}
+	if($page>1){echo "<a href='".$paramsnav."&page=".($page-1)."' class='btn btn-default'><</a>&nbsp;";}else{echo "<a href='#' class='btn btn-default'><</a>&nbsp;";}
+	for($i=$startpagesess;$i<=$endpagesess;$i++){
+		if($page==$i){
+		echo "<a href='#' class='btn btn-danger'>".$i."</a>&nbsp;";
+		}else{
+		echo "<a href='".$paramsnav."&page=".$i."' class='btn btn-default'>".$i."</a>&nbsp;";
+		}
+	}
+	if($page<$totpage){echo "<a href='".$paramsnav."&page=".($page+1)."' class='btn btn-default'>></a>&nbsp;";}else{echo "<a href='#' class='btn btn-default'>></a>&nbsp;";}
+	if($page<$totpage){echo "<a href='".$paramsnav."&page=".$totpage."' class='btn btn-default'>>></a>&nbsp;";}else{echo "<a href='#' class='btn btn-default'>>></a>&nbsp;";}
+}
 ?> 

@@ -1,73 +1,90 @@
 <?php
 require_once "library/koneksi.php";
 require_once "library/fungsi_standar.php";
-if (!isset($_POST['proses']) and ($_POST['proses']=="form1"))
-	{
-		$qtmpil_pel="select * from pelanggan order by inc asc";
-	}
-	elseif (isset($_POST['proses']) and ($_POST['tcari']==""))
-	{
-		$qtmpil_pel="select * from pelanggan order by inc asc";
-	}
-	else
-	{
-		$qtmpil_pel="SELECT * FROM pelanggan WHERE pelanggan_nama LIKE '%$_POST[tcari]%'";	
-	}
+
+$self       = $_SERVER['PHP_SELF'];
+$page     = $_REQUEST['module'];
+$page     = $_REQUEST['page']?$_REQUEST['page']:"1";
+$maxrow     = $_REQUEST['maxrow']?$_REQUEST['maxrow']:"15";
+
+$cari     = $_REQUEST['tcari'];
+
+$qtmpil_pel="select * from pelanggan where true";
+if($cari!="") {
+  $qtmpil_pel.=" and pelanggan_nama like '%$cari%'";  
+}
+$qtmpil_pel.=" order by inc asc"; 
+$sqlnav=$qtmpil_pel;
+$qtmpil_pel.=$page?" LIMIT ".$maxrow." offset ".(($page-1)*$maxrow)."":"";
+
 ?>
 
-<div id="judulHalaman"><strong>Data Pelanggan</strong></div>
-<form id="form1" name="form1" method="post" action="index.php?halaman=data_pelanggan">
-<input name="proses" type="hidden" value="form1" />
-<table border="0" cellspacing="1" cellpadding="0">
-  <tr>
-    <td>Pencarian pelanggan</td>
-  </tr>
-  <tr>
-    <td><input name="tcari" id="input" type="text" size="25" /><input name="bcari" id="tombol" type="submit" value="cari" /></td>
-  </tr>
-</table>
+<div class="span12">
+
+<div class="box border red">
+                      <div class="box-title">
+                        <h4><i class="fa fa-search"></i>Pencarian</h4>
+                      </div>
+                      <div class="box-body big">
+                        <form class="form-inline" role="form" method="post" action="index.php?halaman=data_pelanggan">
+                          <div class="form-group">
+                          <input name="tcari" value="<?php echo $cari; ?>" type="text" class="form-control" id="exampleInputEmail2" placeholder="Cari..">
+                          <button name="bcari" type="submit" value="Cari" class="btn btn-inverse">Cari</button>
+                          </div>
+                          
+                                                  
+                        </form>
+                      </div>
+                    </div>
 </form>
-<?php
-	$warna1="#FEEBFD";
-	$warna2="#FFFFFF";
-	$warna=$warna1;
-?> 
-      <table cellspacing="1" cellpadding="0">
+
+<div class="widget widget-table action-table">
+            <div class="widget-header"> <i class="icon-user"></i>
+              <h3>Data Pelanggan</h3>
+            </div>
+<!-- /widget-header -->
+            <div class="widget-content">    
+      <table class="table table-striped table-bordered">
+        <thead>
         <tr>
-          <td id="namaField">Nama</td>
-          <td id="namaField">Alamat</td>
-          <td id="namaField">Email</td>
-          <td id="namaField">Kontak</td>
-          <td colspan="2" id="namaField">
-          <?php echo "<a href=index.php?halaman=form_data_master&kode=pelanggan_insert>"; ?>
-            <div id="tombol">tambah data</div>
-          <?php echo "</a>"; ?>  
-          </td>
+          <th>Nama</th>
+          <th>Alamat</th>
+          <th>Email</th>
+          <th>Kontak</th>
+          <th colspan="2"><center>
+          <?php echo "<a class='btn btn-small btn-primary' href=index.php?halaman=form_data_master&kode=pelanggan_insert>"; ?>
+            <i class='btn-icon-only icon-pencil'> </i>tambah data
+          <?php echo "</a>"; ?> </center> 
+          </th>
         </tr>
+        </thead>
         <?php 
 		$qp_pel=mysql_query($qtmpil_pel);
 		
 		while($row3=mysql_fetch_array($qp_pel)){
-			if ($warna==$warna1){
-				$warna=$warna2;
-			}
-			else{
-				$warna=$warna1;
-			}
+
 		?>
-        <tr bgcolor=<?php echo $warna; ?>>
+    <tbody>
+        <tr>
           <td><?php echo "$row3[pelanggan_nama]"; ?></td>
           <td><?php echo "$row3[pelanggan_alamat]"; ?></td>
           <td><?php echo "$row3[pelanggan_email]"; ?></td>
           <td><?php echo "$row3[pelanggan_kontak]"; ?></td>
-          <td><?php echo "<a href=index.php?halaman=form_ubah_data&kode=pelanggan_update&id=$row3[pelanggan_id]>"; ?>
-          	  <div id="tombol">ubah</div>
-			  <?php echo "</a>";?>
+          <td><center><?php echo "<a class='btn btn-small btn-success' href=index.php?halaman=form_ubah_data&kode=pelanggan_update&id=$row3[pelanggan_id]>"; ?>
+          	  <i class='btn-icon-only icon-edit'> </i>ubah
+			  <?php echo "</a>";?></center>
           </td>
-          <td><?php echo "<a href=proses.php?proses=pelanggan_delete&id=$row3[pelanggan_id]>"; ?>
-          	  <div id="tombol" onclick="return confirm('Apakah Anda akan menghapus data buah ini ?')">hapus</div>
-			  <?php echo "</a>"; ?>
+          <td><center><?php echo "<a class='btn btn-small btn-danger' href=proses.php?proses=pelanggan_delete&id=$row3[pelanggan_id]>"; ?>
+          	  <div onclick="return confirm('Apakah Anda akan menghapus data buah ini ?')"><i class='btn-icon-only icon-trash'> </i>hapus</div>
+			  <?php echo "</a>"; ?></center>
           </td>
         </tr>
+        </tbody>
         <?php } ?>
+        <tr>
+          <td colspan="6" align="center"><center><?php _navpage($koneksi,$sqlnav,$maxrow,$page,"?halaman=data_pelanggan&maxrow=$maxrow&status_absen=$status_absen&$start=$start&end=$end&show=data_barang.php");?></center></td>
+        </tr>
       </table>
+</div>
+</div>
+</div>
